@@ -2,7 +2,9 @@
 
 // code thêm begin
 // 1. kết nối tới server backend đang chạy
-const socket = io("http://localhost:3323");
+//const socket = io("http://localhost:3323");
+
+const socket=io("https://tuoicayhe.onrender.com");
 
 
 // 2. Cập nhật dữ liệu cảm biến

@@ -1,0 +1,180 @@
+<!-- main.html-->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOME</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!--Bên trái-->
+    <div class="left">
+      <h2>HOME</h2>
+      <div class="info-box" onclick="openPlantModal()">
+        <strong>🌱 Danh sách cây</strong>
+      </div>
+      <!-- Thêm cây -->
+      <div id="plantManagement" style="display:none"; class="centered-box">
+        <span class="close-button" onclick="closePlantModal()">x</span> <!-- Dấu X nằm đúng chỗ -->        <!-- Thêm cây mới -->
+        <div id="addPlantSection">
+          <h3>Tên cây</h3>
+          <input type="text" id="plantNameInputField">
+          <button onclick="savePlantName()">Lưu</button>
+          <button onclick="cancelAddPlant()">Hủy</button>
+        </div>
+        <ul id="plantList"></ul>
+        <!-- Sửa cây -->
+        <div id="editPlantSection" style="display: none;">
+          <p id="selectedPlantName"></p>
+          <button onclick="deleteSelectedPlant()">Xoá</button>
+          <button onclick="cancelAddPlant()">Huỷ</button>
+        </div>
+      </div>
+      <!--Tìm cây đề xuất-->
+      
+    
+      
+      
+      <!-- Ô Chu kỳ tưới cây -->
+      <div class="info-box" onclick="openCycleModal()">
+        <strong>🔁 thời gian tưới cây</strong>
+        <div id="cycleList"></div>
+      </div>
+      <!--  nhập chu kỳ -->
+      <div id="cycleModal" class="modal">
+        <div class="modal-content">
+          <h3>Thời gian mỗi lần tưới</h3>
+          <input type="text" id="cycleInput" placeholder="Nhập thời gian">
+          <div class="modal-buttons">
+            <button onclick="saveCycle()">Lưu</button>
+            <button onclick="closeCycleModal()">Hủy</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Nút mở modal nhập lịch tưới cây -->
+        
+      <!-- Ô lịch tưới cây chỉ hiện khi nhấn vào -->
+            <!-- Ô lịch tưới cây chỉ hiển thị khi nhấn vào -->
+      <div class="info-box" onclick="openWateringScheduleOptions()">
+        <strong>📅 Lịch tưới cây</strong>
+      </div>
+
+      <!-- Modal Hiển thị các tùy chọn Lịch tưới cây -->
+      <div id="wateringScheduleOptionsModal" class="modal">
+        <div class="modal-content1">
+          <h3></h3>
+          <button type="button" onclick="openAddWateringScheduleModal()">Thêm lịch tưới cây</button>
+          <button type="button" onclick="openWateringScheduleListModal()">Danh sách lịch tưới cây</button>
+          <button type="button" onclick="closeWateringScheduleOptionsModal()">Đóng</button>
+        </div>
+      </div>
+
+      <!-- Modal Thêm lịch tưới cây -->
+      <div id="timeDisplay" style="font-size: 24px; font-weight: bold;">
+      </div>
+      
+      <div id="wateringScheduleModal" class="modal">
+        <div class="modal-content">
+          <h3>Chọn lịch tưới cây</h3>
+          <form id="wateringScheduleForm">
+            <input type="time" id="wateringTime" required>
+            <input type="number" id="wateringSecond" min="0" max="59" placeholder="Giây" required><br><br>
+            <label><input type="radio" name="day" value="Mon" required> Thứ 2</label>
+            <label><input type="radio" name="day" value="Tue"> Thứ 3</label>
+            <label><input type="radio" name="day" value="Wed"> Thứ 4</label>
+            <label><input type="radio" name="day" value="Thu"> Thứ 5</label>
+            <label><input type="radio" name="day" value="Fri"> Thứ 6</label>
+            <label><input type="radio" name="day" value="Sat"> Thứ 7</label>
+            <label><input type="radio" name="day" value="Sun"> Chủ nhật</label><br><br>
+            <div class="button-container">
+              <button type="submit">Lưu</button>
+              <button type="button" onclick="cancelWateringSchedule()">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Danh sách lịch tưới cây -->
+      <div id="wateringScheduleListModal" class="modal">
+        <div class="modal-content">
+          <h3>Danh sách lịch tưới cây</h3>
+          <div id="scheduleList"></div> <!-- Đây là nơi danh sách lịch sẽ được hiển thị -->
+          <button type="button" onclick="closeWateringScheduleListModal()">Đóng</button>
+        </div>
+      </div>
+  <!-- Từ điển tưới cây -->
+      <div class="info-box" onclick="openDictionaryModal()">
+        <strong>📖 Từ điển tưới cây</strong>
+      </div>
+
+      <!-- Modal từ điển tưới cây -->
+      <div id="dictionaryModal" class="modal">
+        <div class="modal-content">
+          <h3>Tìm loại cây</h3>
+          <input type="text" id="plantSearch" placeholder="Nhập tên cây..." autocomplete="off">
+          <ul id="suggestions"></ul>
+          <div id="plantInfo" style="margin-top: 10px;"></div>
+          <button onclick="closeDictionaryModal()">Đóng</button>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+
+    <!--Bên phải-->
+    <div class="right">
+        <h2>Remote Water Control</h2>
+        <div class="sensor-grid">
+          <strong>
+            PUMP: <span id="pump-status"></span>
+            <button id="toggleButton" onclick="togglePump()">BẬT</button>
+            
+          </strong>
+          <strong>🌡️Nhiệt độ:<span id="tempValue"> --°C</span></strong>
+          <strong>💦 Độ ẩm: <span id="humidityValue">--%</span></strong>
+          <!--<strong>Điểm tới hạn: <span id="waterValue">--%</span></strong>-->
+          <strong style="display: inline-flex; align-items: center;" onclick="openWaterLimitModal()">
+            Điểm tới hạn: <span id="waterValue">--đ</span>
+            <span class="tooltip-container" style="margin-left: 6px;" onclick="event.stopPropagation()">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-text">.............</span>
+            </span>
+          </strong>
+        </div>
+
+        <!-- Modal nhập điểm tới hạn -->
+        <div id="waterLimitModal" class="modal">
+          <div class="modal-content">
+            <h3>
+              Điểm tới hạn
+            </h3>
+        
+            <input type="text" id="waterLimitInput" placeholder="Nhập điểm tới hạn (>=10)">
+            
+            <div class="modal-buttons">
+              <button onclick="saveWaterLimit()">OK</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+  <div style="text-align: center; margin-top: 20px;">
+    <button onclick="window.location.href='index.html'">Đăng xuất</button>
+
+  </div>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <script src="script.js"></script>
+
+
+</body>
+</html> 
+
+

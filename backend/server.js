@@ -1,171 +1,114 @@
 // ==== /backend/server.js ====
-/*
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-//const dotenv = require('dotenv');
-const mqttService = require('./services/mqttService');
-//const db = require('./models/db');
-//const userRoutes = require('./controllers/userController');
-const pumpRoutes = require('./controllers/pumpController');
-const sensorRoutes = require('./controllers/sensorController');
-//const scheduleRoutes = require('./controllers/scheduleController');
 
-//dotenv.config();
+// 1: Import các thư viện cần thiết
+const express = require("express"); // Tạo server web
+const http = require("http");       // Tạo HTTP server
+const { Server } = require("socket.io"); // Tạo server socket.io để giao tiếp realtime với frontend
+const mqtt = require("mqtt");       // Kết nối tới HiveMQ qua giao thức MQTT
+const cors = require("cors");       // Cho phép các domain khác nhau truy cập API
 
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-
-//app.use('/api', userRoutes);
-app.use('/api', pumpRoutes);
-app.use('/api', sensorRoutes);
-//app.use('/api', scheduleRoutes);
-
-mqttService.connectMQTT();
-
-// khởi động server
-server.listen(3323, () => {
-  console.log("Backend server running at http://localhost:3323");
-});*/
-
-// backend/server.js
-
-// 1: khai báo thư viện
-const express = require("express");// 1.1: thư viện express tạo web server
-const http = require("http");      // 1.2: module HTTP của Node.js để tạo server thủ công cùng với express
-const { Server } = require("socket.io");// 1.3: lớp server từ thư viện socket.io để tạo giao tiếp giứa backend và frontend
-const mqtt = require("mqtt"); // 1.4: import thư viện mqtt để kết nối HiveMQ
-const cors = require("cors");// 1.5 để tránh lỗi bảo mật khi frontend và backend chạy trên domain/port khác nhau
-
-
-//2: thiết lập express + socket.io
+// 2: Tạo ứng dụng Express và HTTP server kèm Socket.io
 const app = express();
 const server = http.createServer(app);
-// => tạo 1 express add, sau đó tạo server từ nó (để socket.io dùng đc)
 const io = new Server(server, {
   cors: {
-    origin: "*", // Cho phép mọi domain truy cập WebSocket
+    origin: "*", // Cho phép tất cả domain kết nối WebSocket
   }
 });
-// tạo 1 socket.io server gắn vào HTTP server cho phép mọi địa chỉ IP/frontend kết nối websocket tới
+app.use(cors()); // Cho phép các request từ frontend khác port
 
-app.use(cors());// cho tất cả request HTTP thông thường
-
-
-//3: kết nối tới MQTT broker (HiveMQ Cloud)
+// 3: Kết nối tới MQTT broker (HiveMQ Cloud)
 const mqttClient = mqtt.connect("mqtts://60294ba1a7534e358c2dc4bc7b7cc9f9.s1.eu.hivemq.cloud", {
   username: "esp8266_tuoicay",
   password: "QuanUyenVinh3tuoicay",
   port: 8883,
-  rejectUnauthorized: true
+  rejectUnauthorized: true // Bắt buộc dùng kết nối bảo mật
 });
 
+// Biến toàn cục lưu dữ liệu cảm biến mới nhất
 let latestSensorData = null;
 
-//3.1 khi kết nối thành công với MQTT thì in ra "MQTT connected"
+// 3.1: Khi kết nối MQTT thành công
 mqttClient.on('connect', () => {
-  console.log('MQTT connected');
+  console.log('✅ Đã kết nối tới MQTT broker');
   mqttClient.subscribe(['temperature_humidity', 'ON/OFF_Relay'], (err) => {
-    if (err) console.error('Lỗi khi subscribe:', err);
+    if (err) console.error('❌ Lỗi khi đăng ký topic MQTT:', err);
   });
 });
 
-// 3.2: bắt lỗi kết nối MQTT
+// 3.2: Nếu có lỗi trong kết nối MQTT
 mqttClient.on("error", (err) => {
-  console.error("❌ MQTT connection error:", err);
+  console.error("❌ Lỗi MQTT:", err);
 });
 
-// 3.3: khi nhận dữ liệu từ MQTT
+// 3.3: Xử lý dữ liệu khi nhận được từ MQTT
 mqttClient.on('message', (topic, message) => {
   if (topic === 'temperature_humidity') {
     try {
-      const data = JSON.parse(message.toString());
+      const data = JSON.parse(message.toString()); // Chuyển dữ liệu JSON thành object
       latestSensorData = {
         temperature: data.temperature,
         humidity: data.humidity,
         timestamp: new Date()
       };
-      console.log('🌡️ Received MQTT:', latestSensorData);
-      io.emit('mqtt-data', latestSensorData); // Gửi dữ liệu cho frontend
+      console.log('🌡️ Dữ liệu cảm biến:', latestSensorData);
+
+      // Gửi dữ liệu realtime tới tất cả frontend đang kết nối
+      io.emit('mqtt-data', latestSensorData);
     } catch (err) {
-      console.error('⚠️ Invalid JSON from MQTT:', message.toString());
+      console.error('⚠️ Dữ liệu JSON không hợp lệ:', message.toString());
     }
   } else if (topic === 'ON/OFF_Relay') {
-    console.log('Received relay state from MQTT:', message.toString());
+    console.log('🔁 Trạng thái bơm nhận được từ MQTT:', message.toString());
   }
 });
 
-
-//4 khi có client web kết nối tới socket.io
-
-//4.1 mỗi khi người dùng truy cập front end qua socket.io thì in ra thông báo
+// 4: Khi có client kết nối đến WebSocket
 io.on("connection", (socket) => {
-  console.log("Web client connected"); // in ra thông báo
+  console.log("🌐 Một client web đã kết nối");
 
-  // Gửi dữ liệu cảm biến mới nhất khi client kết nối
+  // 4.1: Gửi dữ liệu cảm biến mới nhất ngay khi client kết nối
   if (latestSensorData) {
     socket.emit('mqtt-data', latestSensorData);
   }
 
-  // 4.1.1 nếu front end bấm sự kiện gửi ON/OFF
+  // 4.2: Khi client gửi yêu cầu bật/tắt bơm
   socket.on('relay-control', (msg) => {
-    if (msg === 'ON') {
-      console.log('Received from web:', msg);
+    if (msg === 'ON' || msg === 'OFF') {
       mqttClient.publish('ON/OFF_Relay', msg);
+      console.log(`🚰 Đã gửi lệnh bơm: ${msg}`);
     } else {
-      console.error('Invalid relay state:', msg);
+      console.error('⚠️ Trạng thái relay không hợp lệ:', msg);
     }
   });
 
-  // 4.1.2 xử lý sự kiện người dùng nhập thời gian tưới cây
-  socket.on("set_wateringtime", (cycleValue) => {
-    console.log("Received cycle value from frontend:", cycleValue);
-  
-    // Kiểm tra giá trị là số nguyên dương
-    if (Number.isInteger(cycleValue) && cycleValue > 0) {
-      // Gửi giá trị đến HiveMQ qua MQTT
-      mqttClient.publish("set_watering_time", cycleValue.toString(), (err) => {
-        if (err) {
-          console.error("❌ Error publishing cycle value to MQTT:", err);
-        } else {
-          console.log(`✅ Published cycle value ${cycleValue} to MQTT topic 'set_watering_time'`);
-        }
-      });
+  // 4.3: Khi client nhập thời gian tưới cây
+  socket.on("set_wateringtime", (value) => {
+    if (Number.isInteger(value) && value > 0) {
+      mqttClient.publish("set_watering_time", value.toString());
+      console.log(`🔁 Đã thiết lập chu kỳ tưới: ${value} giây`);
     } else {
-      console.error("⚠️ Invalid cycle value received:", cycleValue);
-      socket.emit("cycle-error", "Giá trị thời gian tưới phải là số nguyên dương!");
+      socket.emit("cycle-error", "⛔ Giá trị chu kỳ tưới phải là số nguyên dương!");
     }
   });
 
-
-  // 4.1.3 Xử lý điểm tới hạn
-  socket.on("set_water_limit", (waterLimitValue) => {
-    console.log("Received water limit value from frontend:", waterLimitValue);
-
-    if (Number.isInteger(waterLimitValue) && waterLimitValue > 9) {
-      mqttClient.publish("set_watering_point", waterLimitValue.toString(), (err) => {
-        if (err) {
-          console.error("❌ Error publishing water limit value to MQTT:", err);
-        } else {
-          console.log(`✅ Published water limit value ${waterLimitValue} to MQTT topic 'water-limit'`);
-        }
-      });
+  // 4.4: Khi client nhập điểm tới hạn (mức nước)
+  socket.on("set_water_limit", (value) => {
+    if (Number.isInteger(value) && value >= 10) {
+      mqttClient.publish("set_watering_point", value.toString());
+      console.log(`💧 Đã gửi điểm tới hạn: ${value}`);
     } else {
-      console.error("⚠️ Invalid water limit value received:", waterLimitValue);
-      socket.emit("water-limit-error", "Giá trị điểm tới hạn phải là số nguyên dương lớn hơn 10!");
+      socket.emit("water-limit-error", "⛔ Điểm tới hạn phải là số ≥ 10!");
     }
   });
 
-
+  // 4.5: Khi client ngắt kết nối
   socket.on('disconnect', () => {
-    console.log('Web client disconnected');
+    console.log('🔌 Một client đã ngắt kết nối');
   });
 });
 
-// khởi động server
+// 5: Khởi động server
 server.listen(3323, () => {
-  console.log("Backend server running at http://localhost:3323");
+  console.log("🚀 Backend server đang chạy tại http://localhost:3323");
 });
-// server sẽ chạy trên http://localhost:3329 và lăng nghe WebSocket và xử lý*/
-

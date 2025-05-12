@@ -6,6 +6,8 @@ const http = require("http");       // Tạo HTTP server
 const { Server } = require("socket.io"); // Tạo server socket.io để giao tiếp realtime với frontend
 const mqtt = require("mqtt");       // Kết nối tới HiveMQ qua giao thức MQTT
 const cors = require("cors");       // Cho phép các domain khác nhau truy cập API
+const apiRoutes = require("./routes");
+const authRoutes = require("./authRoutes");
 
 // 2: Tạo ứng dụng Express và HTTP server kèm Socket.io
 const app = express();
@@ -109,6 +111,9 @@ io.on("connection", (socket) => {
 });
 
 // 5: Khởi động server
+app.use(express.json());        // Cho phép xử lý JSON body
+app.use("/api", apiRoutes);     // API cây, lịch tưới, điều khiển bơm
+app.use("/auth", authRoutes);   // Đăng ký, đăng nhập
 server.listen(3323, () => {
   console.log("🚀 Backend server đang chạy tại http://localhost:3323");
 });

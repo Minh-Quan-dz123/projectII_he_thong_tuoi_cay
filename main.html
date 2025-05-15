@@ -1,0 +1,191 @@
+<!-- main.html-->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOME</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!--Bên trái-->
+    <div class="left">
+      <h2>HOME</h2>
+      <div class="info-box" onclick="MoModalCay()">
+        <strong>🌱 Danh sách cây</strong>
+      </div>
+      <!-- Thêm cây -->
+      <div id="QuanLyCay" style="display:none"; class="centered-box">
+        <span class="dong-button" onclick="DongModalCay()">x</span>       
+        <div id="ThemCay">
+          <h3>Tên cây</h3>
+          <input type="text" id="ThemTenCay">
+          <button onclick=" LuuTenCay()">Lưu</button>
+          <button onclick="HuyThemCay()">Hủy</button>
+        </div>
+        <ul id="DanhSachCay"></ul>
+        <!-- Sửa cây -->
+        <div id="EditChonCay" style="display: none;">
+          <p id="ChonTenCay"></p>
+          <button onclick="XoaCayDaChon()">Xoá</button>
+          <button onclick="HuyThemCay()">Huỷ</button>
+        </div>
+      </div>
+      
+      
+    
+      
+      
+      <!-- Ô Chu kỳ tưới cây -->
+      <div class="info-box" onclick="MoChuKy()">
+        <strong>🔁 thời gian tưới cây</strong>
+        <div id="DanhsachChuKy"></div>
+      </div>
+      <!--  nhập chu kỳ -->
+      <div id="ModalChuky" class="modal">
+        <div class="modal-content">
+          <h3>Thời gian mỗi lần tưới</h3>
+          <input type="text" id="InputChuky" placeholder="Nhập thời gian">
+          <div class="modal-buttons">
+            <button onclick="LuuChuKy()">Lưu</button>
+            <button onclick="DongChuKy()">Hủy</button>
+          </div>
+        </div>
+      </div>
+
+
+
+        
+      <!-- Ô lịch tưới cây chỉ hiện khi nhấn vào -->
+      <div class="info-box" onclick="openLichTuoiOptions()">
+        <strong>📅 Lịch tưới cây</strong>
+      </div>
+
+      <!-- Modal Hiển thị các tùy chọn Lịch tưới cây -->
+      <div id="LichTuoiOptionsModal" class="modal">
+        <div class="modal-content1">
+          <h3></h3>
+          <button type="button" onclick="openAddLichTuoiModal()">Thêm lịch tưới cây</button>
+          <button type="button" onclick="openLichTuoiListModal()">Danh sách lịch tưới cây</button>
+          <button type="button" onclick="dongLichTuoiOptionsModal()">Đóng</button>
+        </div>
+      </div>
+
+      <!-- Modal Thêm lịch tưới cây -->
+      <div id="timeDisplay" style="font-size: 24px; font-weight: bold;">
+      </div>
+      
+      <div id="LichTuoiModal" class="modal">
+        <div class="modal-content">
+          <h3>Chọn lịch tưới cây</h3>
+          <form id="LichTuoiForm">
+            <input type="time" id="wateringTime" required>
+            <input type="number" id="wateringSecond" min="0" max="59" placeholder="Giây" required><br><br>
+            <label><input type="radio" name="day" value="Mon" required> Thứ 2</label>
+            <label><input type="radio" name="day" value="Tue"> Thứ 3</label>
+            <label><input type="radio" name="day" value="Wed"> Thứ 4</label>
+            <label><input type="radio" name="day" value="Thu"> Thứ 5</label>
+            <label><input type="radio" name="day" value="Fri"> Thứ 6</label>
+            <label><input type="radio" name="day" value="Sat"> Thứ 7</label>
+            <label><input type="radio" name="day" value="Sun"> Chủ nhật</label><br><br>
+            <div class="button-container">
+              <button type="submit">Lưu</button>
+              <button type="button" onclick="cancelLichTuoi()">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Danh sách lịch tưới cây -->
+      <div id="LichTuoiListModal" class="modal">
+        <div class="modal-content">
+          <h3>Danh sách lịch tưới cây</h3>
+          <div id="scheduleList"></div> <!-- Đây là nơi danh sách lịch sẽ được hiển thị -->
+          <button type="button" onclick="dongLichTuoiListModal()">Đóng</button>
+        </div>
+      </div>
+
+
+
+
+  <!-- Từ điển tưới cây -->
+      <div class="info-box" onclick="openthuvienModal()">
+        <strong>📖 Từ điển tưới cây</strong>
+      </div>
+
+      <!-- Modal từ điển tưới cây -->
+      <div id="thuvienModal" class="modal">
+        <div class="modal-content">
+          <h3>Tìm loại cây</h3>
+          <input type="text" id="plantSearch" placeholder="Nhập tên cây..." autocomplete="off">
+          <ul id="suggestions"></ul>
+          <div id="plantInfo" style="margin-top: 10px;"></div>
+          <button onclick="dongthuvienModal()">Đóng</button>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!--Bên phải-->
+    <div class="right">
+        <h2>Remote Water Control</h2>
+        <div class="sensor-grid">
+          <strong>
+            PUMP: <span id="status_bom"></span>
+            <button id="An_button" onclick="Bat_May_Bom()">BẬT</button>
+            
+          </strong>
+          <strong>🌡️Nhiệt độ:<span id="tempValue"> --°C</span></strong>
+          <strong>💦 Độ ẩm: <span id="humidityValue">--%</span></strong>
+          <strong style="display: inline-flex; align-items: center;" onclick="openDoChiuKhatModal()">
+            Độ chịu khát: <span id="waterValue">--đ</span>
+            <span class="tooltip-container" style="margin-left: 6px;" onclick="event.stopPropagation()">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-text">
+                  Chu kì khát: Là chỉ số thể hiện khả năng chịu khát của cây trong 
+                  bao lâu trong ĐIỀU KIỆN THUẬN LỢI. Nó ảnh hưởng bởi các yếu tố như dung tích chứa 
+                  nước trong cây, khả năng thoát hơi nước, nhiệt độ, độ ẩm không khí, độ ẩm đất,... Các
+                  cây khác nhau có chu kì khát khác nhau.
+                <br><br>Ví dụ: Cây dâu tây có độ chịu khát là 4 ngày. Nghĩa là vào mùa 
+                  đông, cây này cần tưới nước 1 lần sau 4 ngày. Vào mùa xuân, hè là 1 lần sau 2-3 ngày, 
+                  mùa thu là 3 ngày.
+                <br><br>Chỉ số chu kì khát của hệ thống chúng tôi sẽ tự động thay đổi linh hoạt giúp người 
+                  dùng không cần thay đổi nó thường xuyên, nhất là vào những thời điểm có thời tiết biến 
+                  đổi thất thường. ví dụ bạn để là 4 ngày, thì đến mùa hè cứ sau 2 ngày là hệ thống tự tưới cây
+                  mà bạn không cần phải đặt lại 2 ngày
+              </span>
+            </span>
+          </strong>
+        </div>
+
+        <!-- Modal nhập ĐỘ CHỊU KHÁT -->
+        <div id="DoChiuKhatModal" class="modal">
+          <div class="modal-content">
+            <h3>
+              chu kì khát
+            </h3>
+            <input type="text" id="DoChiuKhatInput" placeholder="Nhập ĐỘ CHỊU KHÁT >=10 (s)">
+            
+            <div class="modal-buttons">
+              <button onclick="saveDoChiuKhat()">OK</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
+  <div style="text-align: center; margin-top: 20px;">
+    <button onclick="window.location.href='index.html'">Đăng xuất</button>
+
+  </div>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+  <script src="script.js"></script>
+
+
+</body>
+</html> 
+
+

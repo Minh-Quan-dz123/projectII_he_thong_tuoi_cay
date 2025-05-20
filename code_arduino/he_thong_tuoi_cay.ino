@@ -233,18 +233,20 @@ void loop()
   // 4: kết nối wifi nếu xịt begin
   if (WiFi.status() != WL_CONNECTED) 
   {
-      Serial.println("Mat ket noi WiFi! Dang thu ket noi lai...");
-      
-      WiFi.beginSmartConfig(); // bắt đầu chế độ nghe lén thông tin wifi từ điện thoại (thế giới bên ngooài)
-      Serial.print("dang ket noi wifi.1.2.3...");
+    WiFi.mode(WIFI_STA);// đặt ở chế độ chỉ kết nối, ko phát wifi(WiFi_AP)
 
-      // chờ nghe lén SSID và password từ thế giới bên ngoài
-      while(!WiFi.smartConfigDone())
-      {
-          delay(500);
-          Serial.print("dang nghe len.....");
-      }
-      Serial.println("----nghe len thanh cong----\n");
+    Serial.println("\nbat dau ket noi wifi...");
+    //WiFi.begin(ssid,password); // dành cho kết nối cố định
+    WiFi.beginSmartConfig(); // bắt đầu chế độ nghe lén thông tin wifi từ điện thoại (thế giới bên ngooài)
+    Serial.print("dang ket noi wifi.1.2.3...");
+
+    // chờ nghe lén SSID và password từ thế giới bên ngoài
+    while(!WiFi.smartConfigDone())
+    {
+        delay(500);
+        Serial.print("dang nghe len.....");
+    }
+    Serial.println("----nghe len thanh cong----\n");
   }
 
   // 5: MQTT begin

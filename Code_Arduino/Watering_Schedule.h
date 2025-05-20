@@ -7,6 +7,7 @@
 
 extern RTC_DS3231 rtc;// đối tượng đo thời gian thực
 extern int tro_lich;// trỏ vào lịch đang xét để so sánh xem đã tới lịch tưới cây chưa
+extern int lich_da_duyet;// số lịch đã duyệt
 
 struct Watering_Schedule{
   byte thu, gio, phut, giay;

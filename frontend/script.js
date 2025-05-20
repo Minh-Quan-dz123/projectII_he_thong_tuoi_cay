@@ -156,7 +156,6 @@ function XoaCayDaChon() {
 }
 
 
-
 // Phần 4 thời gian tưới cây
 
 // Mở modal nhập chu kỳ
@@ -195,12 +194,12 @@ function LuuChuKy() {
   }
 }
 
-// 4.2 lấy giá trị ChukY từ esp8266
+// 4.2 lấy giá trị thời gian tưới cây từ esp8266
 document.addEventListener("DOMContentLoaded", () => {
   socket.emit("request_watering_cycle");
 });
 
-// Nhận chu kỳ từ backend và cập nhật giao diện
+// Nhận thời gian tiếu cây từ backend và cập nhật giao diện
 socket.on("get_watering_cycle", (chuKyValue) => {
   if (!isNaN(chuKyValue) && chuKyValue > 0) {
     document.getElementById("DanhsachChuKy").textContent = `${chuKyValue}`;
@@ -227,8 +226,6 @@ function updateTime() {
 // 5.2 Cập nhật mỗi giây
 setInterval(updateTime, 1000);
 updateTime(); // chạy lần đầu khi tải trang
-
-
 
 
 
@@ -439,7 +436,7 @@ function deleteSchedule(index) {
   updateLichTuoiList();
 
 
-  // sau khi xóa thì gửi tới backend
+  // 6.7.2 sau khi xóa thì gửi tới backend
   socket.emit("delete_schedule", {
     weekday: schedule.dayIndex,
     hour: schedule.hour,
@@ -449,7 +446,7 @@ function deleteSchedule(index) {
   });
 }
 
-//6.7.2 Xoá hết lịch
+//6.7.3 Xoá hết lịch
 function xoaTatCaLichTuoi() {
   if (confirm("Bạn có chắc chắn muốn xoá tất cả lịch tưới không?")) {
     LichTuois = [];
@@ -473,9 +470,6 @@ function openLichTuoiListModal() {
 function dongLichTuoiListModal() {
   document.getElementById("LichTuoiListModal").style.display = "none";
 }
-
-
-
 
 
 // Phần 7 ĐỘ CHỊU KHÁT của cây
